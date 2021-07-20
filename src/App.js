@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+import MultiSelect from "react-multi-select-component";
+
 import './App.css';
 
 const App = () => {
@@ -8,6 +10,11 @@ const App = () => {
     [numbers, setNumbers] = useState([]),
     [objects, setObjects] = useState([]),
     [booleans, setBooleans] = useState([]);
+
+  const [selectedStrings, setSelectedStrings] = useState([]),
+    [selectedNumbers, setSelectedNumbers] = useState([]),
+    [selectedObjects, setSelectedObjects] = useState([]),
+    [selectedBooleans, setSelectedBooleans] = useState([]);
 
 
   useEffect(() => {
@@ -48,7 +55,30 @@ const App = () => {
 
   return (
     <div className="App">
-
+      <MultiSelect
+        options={numbers}
+        value={selectedNumbers}
+        onChange={setSelectedNumbers}
+        labelledBy="Select"
+      />
+      <MultiSelect
+        options={strings}
+        value={selectedStrings}
+        onChange={setSelectedStrings}
+        labelledBy="Select"
+      />
+      <MultiSelect
+        options={objects}
+        value={selectedObjects}
+        onChange={setSelectedObjects}
+        labelledBy="Select"
+      />
+      <MultiSelect
+        options={booleans}
+        value={selectedBooleans}
+        onChange={setSelectedBooleans}
+        labelledBy="Select"
+      />
     </div>
   );
 }
