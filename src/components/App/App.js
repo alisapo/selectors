@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 
-import MultiSelect from "react-multi-select-component";
+import MultiSelect from 'react-multi-select-component';
+
+import SelectorsList from '../SelectorsList/SelectorsList.js';
+import CountedNumbersResult from '../countedNumbersResult/countedNumbersResult.js';
+import CountedHashStrings from '../countedHashStrings/countedHashStrings.js';
 
 import './App.css';
 
@@ -53,32 +57,58 @@ const App = () => {
     }
   }
 
+  const resetFilters = (e) => {
+    e.preventDefault();
+    setSelectedStrings([]);
+    setSelectedNumbers([]);
+    setSelectedBooleans([]);
+    setSelectedObjects([]);
+  }
+
   return (
-    <div className="App">
-      <MultiSelect
-        options={numbers}
-        value={selectedNumbers}
-        onChange={setSelectedNumbers}
-        labelledBy="Select"
+    <div className='App'>
+      <div className='selectors'>
+        <MultiSelect
+          options={numbers}
+          value={selectedNumbers}
+          onChange={setSelectedNumbers}
+          labelledBy="Select"
+        />
+        <MultiSelect
+          options={strings}
+          value={selectedStrings}
+          onChange={setSelectedStrings}
+          labelledBy="Select"
+        />
+        <MultiSelect
+          options={objects}
+          value={selectedObjects}
+          onChange={setSelectedObjects}
+          labelledBy="Select"
+        />
+        <MultiSelect
+          options={booleans}
+          value={selectedBooleans}
+          onChange={setSelectedBooleans}
+          labelledBy="Select"
+        />
+      </div>
+      <div className='results'>
+        <CountedNumbersResult selectedNumbers={selectedNumbers} />
+        <CountedHashStrings selectedStrings={selectedStrings} />
+      </div>
+      <SelectorsList
+        strings={selectedStrings}
+        numbers={selectedNumbers}
+        booleans={selectedBooleans}
+        objects={selectedObjects}
       />
-      <MultiSelect
-        options={strings}
-        value={selectedStrings}
-        onChange={setSelectedStrings}
-        labelledBy="Select"
-      />
-      <MultiSelect
-        options={objects}
-        value={selectedObjects}
-        onChange={setSelectedObjects}
-        labelledBy="Select"
-      />
-      <MultiSelect
-        options={booleans}
-        value={selectedBooleans}
-        onChange={setSelectedBooleans}
-        labelledBy="Select"
-      />
+      <button
+        className='reset'
+        onClick={(e) => { resetFilters(e) }}
+      >
+        Сбросить
+      </button>
     </div>
   );
 }
