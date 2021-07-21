@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 
+import { sha256 } from 'js-sha256';
+
 const CountedHashStrings = (props) => {
-  const [hashString, setHashString] = useState(null);
+  const [stringToHash, setStringToHash] = useState(null);
+  const [hashOfString, setHashOfString] = useState(null);
 
   useEffect(() => {
     if (props.selectedStrings && props.selectedStrings.length) {
@@ -9,15 +12,16 @@ const CountedHashStrings = (props) => {
       for (let i = 0; i < props.selectedStrings.length; i++) {
         newString += props.selectedStrings[i].value;
       }
-      setHashString(newString);
+      setStringToHash(newString);
+      setHashOfString(sha256(newString));
     } else {
-      setHashString(null);
+      setStringToHash(null);
     }
   }, [props.selectedStrings]);
 
   return (
     <div>
-      Хэш строки: {hashString ? hashString : 'пока нет результата.'}
+      Хэш строки {stringToHash}: {stringToHash ? hashOfString : 'пока нет результата.'}
     </div>
   )
 }
