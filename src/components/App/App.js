@@ -13,13 +13,15 @@ const App = () => {
     [strings, setStrings] = useState([]),
     [numbers, setNumbers] = useState([]),
     [objects, setObjects] = useState([]),
-    [booleans, setBooleans] = useState([]);
+    [booleans, setBooleans] = useState([]),
+    [savedState, setSavedState] = useState([]),
+    [stateLength, setStateLength] = useState(0);
+  console.log(savedState);
 
   const [selectedStrings, setSelectedStrings] = useState([]),
     [selectedNumbers, setSelectedNumbers] = useState([]),
     [selectedObjects, setSelectedObjects] = useState([]),
     [selectedBooleans, setSelectedBooleans] = useState([]);
-
 
   useEffect(() => {
     fetch('https://raw.githubusercontent.com/WilliamRu/TestAPI/master/db.json')
@@ -51,10 +53,45 @@ const App = () => {
         || param[k].length === 0
       ) console.log('Пустой объект');
       if (typeof param[k] === 'boolean') booleans.push({label: param[k], value: param[k]});
-      if (typeof param[k] === 'number') numbers.push({label: param[k], value: param[k]});
+      if (
+        typeof param[k] === 'number'
+        || typeof param[k] === 'bigint'
+      ) numbers.push({label: param[k].toString(), value: param[k]});
       if (typeof param[k] === 'string') strings.push({label: param[k], value: param[k]});
       if (Array.isArray(param[k])) checkArr(param[k]);
     }
+  }
+
+  useEffect(() => {
+    setSavedState({
+      ...savedState,
+      strings: selectedStrings,
+      numbers: selectedNumbers,
+      objects: selectedObjects,
+      booleans: selectedBooleans
+    });
+    
+    let a = selectedStrings ? selectedStrings.length : +0,
+      b = selectedNumbers ? selectedNumbers.length : +0,
+      c = selectedBooleans ? selectedBooleans.length : +0,
+      d = selectedObjects ? selectedObjects.length : +0;
+    setStateLength(a +b + c + d);
+  }, [
+    selectedStrings,
+    selectedNumbers,
+    selectedObjects,
+    selectedBooleans
+  ]);
+
+  const undo = (e) => {
+    e.preventDefault(e);
+    if (stateLength === 1) resetFilters(e);
+    console.log(stateLength, 'отмена');
+  }
+
+  const redo = (e) => {
+    e.preventDefault(e);
+    console.log('повтор');
   }
 
   const resetFilters = (e) => {
@@ -103,6 +140,18 @@ const App = () => {
         booleans={selectedBooleans}
         objects={selectedObjects}
       />
+      <button
+        className='undo'
+        onClick={(e) => { undo(e) }}
+      >
+        Отменить
+      </button>
+      <button
+        className='redo'
+        onClick={(e) => { redo(e) }}
+      >
+        Повторить
+      </button>
       <button
         className='reset'
         onClick={(e) => { resetFilters(e) }}

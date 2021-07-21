@@ -16,6 +16,7 @@ const CountedHashStrings = (props) => {
       setHashOfString(sha256(newString));
     } else {
       setStringToHash(null);
+      setHashOfString(null);
     }
   }, [props.selectedStrings]);
 
