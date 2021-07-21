@@ -18,7 +18,7 @@ const CountedHashStrings = (props) => {
       setStringToHash(null);
       setHashOfString(null);
     }
-  }, [props.selectedStrings]);
+  }, [props.selectedStrings, props.selectedStrings.length]);
 
   return (
     <div>

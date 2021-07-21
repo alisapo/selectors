@@ -15,14 +15,17 @@ const App = () => {
     [objects, setObjects] = useState([]),
     [booleans, setBooleans] = useState([]),
     [savedState, setSavedState] = useState([]),
-    [stateLength, setStateLength] = useState(0);
-  console.log(savedState);
+    [stateLength, setStateLength] = useState(0),
+    [count, setCount] = useState(0),
+    [reseted, setReseted] = useState(false);
+  console.log(savedState, 'что в сохранённых состояниях');
 
   const [selectedStrings, setSelectedStrings] = useState([]),
     [selectedNumbers, setSelectedNumbers] = useState([]),
     [selectedObjects, setSelectedObjects] = useState([]),
     [selectedBooleans, setSelectedBooleans] = useState([]);
 
+  //fetch data
   useEffect(() => {
     fetch('https://raw.githubusercontent.com/WilliamRu/TestAPI/master/db.json')
     .then(res => res.json())
@@ -44,6 +47,7 @@ const App = () => {
     .catch(err => { console.log(err); });
   }, []);
 
+  //распределение по типам данных
   const checkArr = (param) => {
     if (!Array.isArray(param)) return;
     
@@ -62,14 +66,24 @@ const App = () => {
     }
   }
 
+  //следим за обновлениями фильтров
   useEffect(() => {
-    setSavedState({
+    if (
+      !selectedStrings.length
+      && !selectedNumbers.length
+      && !selectedBooleans.length
+      && !selectedObjects.length
+    ) return;
+
+    if (reseted) return;
+
+    setSavedState([
       ...savedState,
-      strings: selectedStrings,
+      {strings: selectedStrings,
       numbers: selectedNumbers,
       objects: selectedObjects,
-      booleans: selectedBooleans
-    });
+      booleans: selectedBooleans}
+    ]);
     
     let a = selectedStrings ? selectedStrings.length : +0,
       b = selectedNumbers ? selectedNumbers.length : +0,
@@ -83,23 +97,64 @@ const App = () => {
     selectedBooleans
   ]);
 
+  //кнопка отменить
   const undo = (e) => {
     e.preventDefault(e);
-    if (stateLength === 1) resetFilters(e);
-    console.log(stateLength, 'отмена');
+    if (stateLength === 1 || stateLength - count - 1 === +0) {
+      resetFilters(e);
+      return;
+    } else {
+      setCount(++count);
+      setReseted(true);
+      console.log(count, ' - counted', savedState[stateLength - count - 1]);
+      // setSelectedBooleans([savedState[+stateLength - +count].booleans]);
+      setSelectedNumbers(savedState[stateLength - count - 1].numbers);
+      setSelectedStrings(savedState[stateLength - count - 1].strings);
+      setSelectedObjects(savedState[stateLength - count - 1].objects);
+    }
   }
 
+  //кнопка повторить
   const redo = (e) => {
     e.preventDefault(e);
+    // setCount(--count);
+    // console.log(count, ' - counted', savedState[stateLength - count - 1]);
+    // // setSelectedBooleans([savedState[+stateLength - +count].booleans]);
+    // setSelectedNumbers(savedState[stateLength - count - 1].numbers);
+    // setSelectedStrings(savedState[stateLength - count - 1].strings);
+    // setSelectedObjects(savedState[stateLength - count - 1].objects);
     console.log('повтор');
   }
 
+  //кнопка сброс
   const resetFilters = (e) => {
     e.preventDefault();
     setSelectedStrings([]);
     setSelectedNumbers([]);
     setSelectedBooleans([]);
     setSelectedObjects([]);
+    setSavedState([]);
+    setStateLength(0);
+    setCount(0);
+  }
+
+  //выбор данных в селектах
+  const setFilter = (target) => {
+    console.log('выбираем фильтр', target);
+    setReseted(false);
+    setCount(0);
+    if (typeof target[0].value === 'number') {
+      setSelectedNumbers(target);
+    } else if (
+      target[0].label == target[0].value
+      && typeof target[0].value === 'string'
+    ) {
+      setSelectedStrings(target);
+    } else if (typeof target[0].value === 'boolean') {
+      setSelectedBooleans(target);
+    } else {
+      setSelectedObjects(target);
+    }
   }
 
   return (
@@ -108,25 +163,33 @@ const App = () => {
         <MultiSelect
           options={numbers}
           value={selectedNumbers}
-          onChange={setSelectedNumbers}
+          hasSelectAll={false}
+          disableSearch={true}
+          onChange={(array) => {setFilter(array)}}
           labelledBy="Select"
         />
         <MultiSelect
           options={strings}
           value={selectedStrings}
-          onChange={setSelectedStrings}
+          hasSelectAll={false}
+          disableSearch={true}
+          onChange={(array) => { setFilter(array) }}
           labelledBy="Select"
         />
         <MultiSelect
           options={objects}
           value={selectedObjects}
-          onChange={setSelectedObjects}
+          hasSelectAll={false}
+          disableSearch={true}
+          onChange={(array) => { setFilter(array) }}
           labelledBy="Select"
         />
         <MultiSelect
           options={booleans}
           value={selectedBooleans}
-          onChange={setSelectedBooleans}
+          hasSelectAll={false}
+          disableSearch={true}
+          onChange={(array) => { setFilter(array) }}
           labelledBy="Select"
         />
       </div>
@@ -141,12 +204,14 @@ const App = () => {
         objects={selectedObjects}
       />
       <button
+        disabled={stateLength > +0 ? false : true}
         className='undo'
         onClick={(e) => { undo(e) }}
       >
         Отменить
       </button>
       <button
+        disabled={stateLength > +1 ? false : true}
         className='redo'
         onClick={(e) => { redo(e) }}
       >
