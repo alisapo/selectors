@@ -9,13 +9,13 @@ import CountedHashStrings from '../countedHashStrings/countedHashStrings.js';
 import './App.css';
 
 const App = () => {
-  let [testArr, setTestArr] = useState(null),
+  let //[testArr, setTestArr] = useState(null),
     [strings, setStrings] = useState([]),
     [numbers, setNumbers] = useState([]),
     [objects, setObjects] = useState([]),
     [booleans, setBooleans] = useState([]),
     [savedState, setSavedState] = useState([]),
-    [count, setCount] = useState(0),
+    [count, setCount] = useState(+0),
     [reseted, setReseted] = useState(false);
   console.log(savedState, 'что в сохранённых состояниях');
 
@@ -34,12 +34,21 @@ const App = () => {
           res.testArr[i] === null
           || res.testArr[i].length === 0
         ) console.log('Пустой объект');
-        if (typeof res.testArr[i] === 'string') strings.push({ label: res.testArr[i], value: res.testArr[i]});
+
+        if (typeof res.testArr[i] === 'string') strings.push({
+          label: res.testArr[i],
+          value: res.testArr[i]
+        });
+
         if (Array.isArray(res.testArr[i])) checkArr(res.testArr[i]);
+
         if (
           res.testArr[i] !== null
           && res.testArr[i].hasOwnProperty('value')
-        ) objects.push({ label: res.testArr[i].key, value: res.testArr[i].value});
+        ) objects.push({
+          label: res.testArr[i].key,
+          value: res.testArr[i].value
+        });
       }
     })
     // .then(res => console.log(strings, numbers, booleans, objects))
@@ -55,12 +64,25 @@ const App = () => {
         param[k] === null
         || param[k].length === 0
       ) console.log('Пустой объект');
-      if (typeof param[k] === 'boolean') booleans.push({label: param[k], value: param[k]});
+
+      if (typeof param[k] === 'boolean') booleans.push({
+        label: param[k],
+        value: param[k]
+      });
+
       if (
         typeof param[k] === 'number'
         || typeof param[k] === 'bigint'
-      ) numbers.push({label: param[k].toString(), value: param[k]});
-      if (typeof param[k] === 'string') strings.push({label: param[k], value: param[k]});
+      ) numbers.push({
+        label: param[k].toString(),
+        value: param[k]
+      });
+
+      if (typeof param[k] === 'string') strings.push({
+        label: param[k],
+        value: param[k]
+      });
+
       if (Array.isArray(param[k])) checkArr(param[k]);
     }
   }
@@ -106,34 +128,22 @@ const App = () => {
   ]);
 
   //кнопка отменить
-  const undo = (e) => {
+  const undoRedo = (e) => {
     e.preventDefault(e);
-    if (savedState.length === 1 || savedState.length - count - 1 === +0) {
-      resetFilters(e);
-      return;
-    } else {
-      setReseted(true);
-      console.log(count, ' - counted', savedState[savedState.length - count - 1]);
-      takeSaved(e.target.name);
-    }
-  }
-
-  //кнопка повторить
-  const redo = (e) => {
-    e.preventDefault(e);
-    takeSaved(e.target.name);
-    console.log('повтор');
+    setReseted(true);
+    e.target.name === 'undo' ?
+      setCount(count + 1) : setCount(count - 1);
   }
 
   //подстановка сохранённых значений
-  const takeSaved = (name) => {
-    console.log(name);
-    name === 'undo' ? setCount(count + 1) : setCount(count - 1);
-    // setSelectedBooleans([savedState[+stateLength - +count].booleans]);
+  useEffect(() => {
+    console.log(count);
+    if (!savedState.length) return;
+    setSelectedBooleans(savedState[savedState.length - count - 1].booleans);
     setSelectedNumbers(savedState[savedState.length - count - 1].numbers);
     setSelectedStrings(savedState[savedState.length - count - 1].strings);
     setSelectedObjects(savedState[savedState.length - count - 1].objects);
-  }
+  }, [count]);
 
   //кнопка сброс
   const resetFilters = (e) => {
@@ -211,10 +221,12 @@ const App = () => {
         objects={selectedObjects}
       />
       <button
-        disabled={(savedState.length > +0 && (savedState.length - count - +1) >= +0) ? false : true}
+        disabled={(savedState.length > +1
+          && (savedState.length - count - +1) >= +1) ?
+          false : true}
         className='undo'
         name="undo"
-        onClick={(e) => { undo(e) }}
+        onClick={(e) => { undoRedo(e) }}
       >
         Отменить
       </button>
@@ -222,7 +234,7 @@ const App = () => {
         disabled={(count && savedState.length > +1) ? false : true}
         className='redo'
         name="redo"
-        onClick={(e) => { redo(e) }}
+        onClick={(e) => { undoRedo(e) }}
       >
         Повторить
       </button>
