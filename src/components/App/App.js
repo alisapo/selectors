@@ -15,7 +15,6 @@ const App = () => {
     [objects, setObjects] = useState([]),
     [booleans, setBooleans] = useState([]),
     [savedState, setSavedState] = useState([]),
-    [stateLength, setStateLength] = useState(0),
     [count, setCount] = useState(0),
     [reseted, setReseted] = useState(false);
   console.log(savedState, 'что в сохранённых состояниях');
@@ -77,19 +76,28 @@ const App = () => {
 
     if (reseted) return;
 
-    setSavedState([
-      ...savedState,
-      {strings: selectedStrings,
-      numbers: selectedNumbers,
-      objects: selectedObjects,
-      booleans: selectedBooleans}
-    ]);
-    
-    let a = selectedStrings ? selectedStrings.length : +0,
-      b = selectedNumbers ? selectedNumbers.length : +0,
-      c = selectedBooleans ? selectedBooleans.length : +0,
-      d = selectedObjects ? selectedObjects.length : +0;
-    setStateLength(a +b + c + d);
+    if (savedState.length === 10) {
+      let tempArr = [];
+      for (let i = 1; i < savedState.length; i++) {
+        tempArr = [...tempArr, savedState[i]];
+        
+      }
+      setSavedState([
+        ...tempArr,
+        {
+          strings: selectedStrings,
+          numbers: selectedNumbers,
+          objects: selectedObjects,
+          booleans: selectedBooleans
+    }]);} else {
+      setSavedState([
+        ...savedState,
+        {
+          strings: selectedStrings,
+          numbers: selectedNumbers,
+          objects: selectedObjects,
+          booleans: selectedBooleans
+    }]);}
   }, [
     selectedStrings,
     selectedNumbers,
@@ -100,30 +108,31 @@ const App = () => {
   //кнопка отменить
   const undo = (e) => {
     e.preventDefault(e);
-    if (stateLength === 1 || stateLength - count - 1 === +0) {
+    if (savedState.length === 1 || savedState.length - count - 1 === +0) {
       resetFilters(e);
       return;
     } else {
-      setCount(++count);
       setReseted(true);
-      console.log(count, ' - counted', savedState[stateLength - count - 1]);
-      // setSelectedBooleans([savedState[+stateLength - +count].booleans]);
-      setSelectedNumbers(savedState[stateLength - count - 1].numbers);
-      setSelectedStrings(savedState[stateLength - count - 1].strings);
-      setSelectedObjects(savedState[stateLength - count - 1].objects);
+      console.log(count, ' - counted', savedState[savedState.length - count - 1]);
+      takeSaved(e.target.name);
     }
   }
 
   //кнопка повторить
   const redo = (e) => {
     e.preventDefault(e);
-    // setCount(--count);
-    // console.log(count, ' - counted', savedState[stateLength - count - 1]);
-    // // setSelectedBooleans([savedState[+stateLength - +count].booleans]);
-    // setSelectedNumbers(savedState[stateLength - count - 1].numbers);
-    // setSelectedStrings(savedState[stateLength - count - 1].strings);
-    // setSelectedObjects(savedState[stateLength - count - 1].objects);
+    takeSaved(e.target.name);
     console.log('повтор');
+  }
+
+  //подстановка сохранённых значений
+  const takeSaved = (name) => {
+    console.log(name);
+    name === 'undo' ? setCount(count + 1) : setCount(count - 1);
+    // setSelectedBooleans([savedState[+stateLength - +count].booleans]);
+    setSelectedNumbers(savedState[savedState.length - count - 1].numbers);
+    setSelectedStrings(savedState[savedState.length - count - 1].strings);
+    setSelectedObjects(savedState[savedState.length - count - 1].objects);
   }
 
   //кнопка сброс
@@ -134,13 +143,11 @@ const App = () => {
     setSelectedBooleans([]);
     setSelectedObjects([]);
     setSavedState([]);
-    setStateLength(0);
     setCount(0);
   }
 
   //выбор данных в селектах
   const setFilter = (target) => {
-    console.log('выбираем фильтр', target);
     setReseted(false);
     setCount(0);
     if (typeof target[0].value === 'number') {
@@ -204,15 +211,17 @@ const App = () => {
         objects={selectedObjects}
       />
       <button
-        disabled={stateLength > +0 ? false : true}
+        disabled={(savedState.length > +0 && (savedState.length - count - +1) >= +0) ? false : true}
         className='undo'
+        name="undo"
         onClick={(e) => { undo(e) }}
       >
         Отменить
       </button>
       <button
-        disabled={stateLength > +1 ? false : true}
+        disabled={(count && savedState.length > +1) ? false : true}
         className='redo'
+        name="redo"
         onClick={(e) => { redo(e) }}
       >
         Повторить
