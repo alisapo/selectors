@@ -9,7 +9,7 @@ import CountedHashStrings from '../countedHashStrings/countedHashStrings.js';
 import './App.css';
 
 const App = () => {
-  let [testArr, setTestArr] = useState(null),
+  let
     [strings, setStrings] = useState([]),
     [numbers, setNumbers] = useState([]),
     [objects, setObjects] = useState([]),
@@ -17,7 +17,6 @@ const App = () => {
     [savedState, setSavedState] = useState([]),
     [count, setCount] = useState(+0),
     [reseted, setReseted] = useState(false);
-  console.log(savedState, 'что в сохранённых состояниях');
 
   const [selectedStrings, setSelectedStrings] = useState([]),
     [selectedNumbers, setSelectedNumbers] = useState([]),
@@ -28,13 +27,9 @@ const App = () => {
   useEffect(() => {
     fetch('https://raw.githubusercontent.com/WilliamRu/TestAPI/master/db.json')
     .then(res => res.json())
-    .then(res => setTestArr(res.testArr))
+    .then(res => checkArr(res.testArr))
     .catch(err => { console.log(err); });
   }, []);
-
-  useEffect(() => {
-    checkArr(testArr);
-  }, [testArr]);
 
   //распределение по типам данных
   const checkArr = (param) => {
@@ -48,13 +43,11 @@ const App = () => {
 
       if (typeof param[k] === 'boolean') sortElemFunc(param[k], booleans);
 
-      if (
-        // typeof param[k] === 'bigint' && 
-        typeof param[k] === 'number'
-      ) {
+      if (typeof param[k] === 'number') {
         // eslint-disable-next-line no-undef
-        const a = BigInt(param[k]); console.log(a);
-        sortElemFunc(param[k], numbers);}
+        const a = BigInt(param[k]).toString();
+        sortElemFunc(a, numbers);
+      };
 
       if (typeof param[k] === 'string') sortElemFunc(param[k], strings);
 
@@ -69,16 +62,23 @@ const App = () => {
 
   //создание нового элемента в массивах при сортировке по типам данных
   const sortElemFunc = (param, name) => {
-    if (name.length > 0) {
-      name[name.length + 1] = {
-        label: param.key ? param.key.toString() : param.toString(),
-        value: param.value ? param.value : param
-      };
+    //проверяем на повтор значений
+    if (name.length) {
+      for (let t = 0; t < name.length; t++) {
+        if (name[t].label === param) return;
+    }}
+
+    //создаём временный объект
+    const tempObj = {
+      label: param.key ? param.key.toString() : param.toString(),
+      value: param.value ? param.value : param
+    };
+
+    //записываем объект в массив
+    if (!name.length) {
+      name[0] = { ...tempObj };
     } else {
-      name[0] = {
-        label: param.key ? param.key.toString() : param.toString(),
-        value: param.value ? param.value : param
-      };
+      name[name.length] = { ...tempObj };
     }
   }
 

@@ -5,11 +5,13 @@ const CountedNumbersResult = (props) => {
 
   useEffect(() => {
     if (props.selectedNumbers && props.selectedNumbers.length) {
-      let proizvTemp = 1;
+      // eslint-disable-next-line no-undef
+      let proizvTemp = BigInt(1);
       for (let k = 0; k < props.selectedNumbers.length; k++) {
-        proizvTemp *= +props.selectedNumbers[k].value;
+        // eslint-disable-next-line no-undef
+        proizvTemp *= BigInt(props.selectedNumbers[k].value);
       }
-      setProizv(proizvTemp.toFixed());
+      setProizv(proizvTemp.toString());
     } else {
       setProizv(null);
     }
