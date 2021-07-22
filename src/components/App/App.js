@@ -9,7 +9,7 @@ import CountedHashStrings from '../countedHashStrings/countedHashStrings.js';
 import './App.css';
 
 const App = () => {
-  let //[testArr, setTestArr] = useState(null),
+  let [testArr, setTestArr] = useState(null),
     [strings, setStrings] = useState([]),
     [numbers, setNumbers] = useState([]),
     [objects, setObjects] = useState([]),
@@ -24,36 +24,17 @@ const App = () => {
     [selectedObjects, setSelectedObjects] = useState([]),
     [selectedBooleans, setSelectedBooleans] = useState([]);
 
-  //fetch data
+  //получение данных с сервера
   useEffect(() => {
     fetch('https://raw.githubusercontent.com/WilliamRu/TestAPI/master/db.json')
     .then(res => res.json())
-    .then(res => {
-      for (let i = 0; i < res.testArr.length; i++) {
-        if (
-          res.testArr[i] === null
-          || res.testArr[i].length === 0
-        ) console.log('Пустой объект');
-
-        if (typeof res.testArr[i] === 'string') strings.push({
-          label: res.testArr[i],
-          value: res.testArr[i]
-        });
-
-        if (Array.isArray(res.testArr[i])) checkArr(res.testArr[i]);
-
-        if (
-          res.testArr[i] !== null
-          && res.testArr[i].hasOwnProperty('value')
-        ) objects.push({
-          label: res.testArr[i].key,
-          value: res.testArr[i].value
-        });
-      }
-    })
-    // .then(res => console.log(strings, numbers, booleans, objects))
+    .then(res => setTestArr(res.testArr))
     .catch(err => { console.log(err); });
   }, []);
+
+  useEffect(() => {
+    checkArr(testArr);
+  }, [testArr]);
 
   //распределение по типам данных
   const checkArr = (param) => {
@@ -65,29 +46,43 @@ const App = () => {
         || param[k].length === 0
       ) console.log('Пустой объект');
 
-      if (typeof param[k] === 'boolean') booleans.push({
-        label: param[k],
-        value: param[k]
-      });
+      if (typeof param[k] === 'boolean') sortElemFunc(param[k], booleans);
 
       if (
+        // typeof param[k] === 'bigint' && 
         typeof param[k] === 'number'
-        || typeof param[k] === 'bigint'
-      ) numbers.push({
-        label: param[k].toString(),
-        value: param[k]
-      });
+      ) {
+        // eslint-disable-next-line no-undef
+        const a = BigInt(param[k]); console.log(a);
+        sortElemFunc(param[k], numbers);}
 
-      if (typeof param[k] === 'string') strings.push({
-        label: param[k],
-        value: param[k]
-      });
+      if (typeof param[k] === 'string') sortElemFunc(param[k], strings);
+
+      if (
+        param[k] !== null
+        && param[k].hasOwnProperty('value')
+      ) sortElemFunc(param[k], objects);
 
       if (Array.isArray(param[k])) checkArr(param[k]);
     }
   }
 
-  //следим за обновлениями фильтров
+  //создание нового элемента в массивах при сортировке по типам данных
+  const sortElemFunc = (param, name) => {
+    if (name.length > 0) {
+      name[name.length + 1] = {
+        label: param.key ? param.key.toString() : param.toString(),
+        value: param.value ? param.value : param
+      };
+    } else {
+      name[0] = {
+        label: param.key ? param.key.toString() : param.toString(),
+        value: param.value ? param.value : param
+      };
+    }
+  }
+
+  //следим за обновлениями данных в селектах
   useEffect(() => {
     if (
       !selectedStrings.length
@@ -102,7 +97,6 @@ const App = () => {
       let tempArr = [];
       for (let i = 1; i < savedState.length; i++) {
         tempArr = [...tempArr, savedState[i]];
-        
       }
       setSavedState([
         ...tempArr,
@@ -127,7 +121,7 @@ const App = () => {
     selectedBooleans
   ]);
 
-  //кнопка отменить
+  //кнопка отменить/повторить
   const undoRedo = (e) => {
     e.preventDefault(e);
     setReseted(true);
@@ -135,9 +129,8 @@ const App = () => {
       setCount(count + 1) : setCount(count - 1);
   }
 
-  //подстановка сохранённых значений
+  //подстановка сохранённых значений при нажатии кнопок отменить/повторить
   useEffect(() => {
-    console.log(count);
     if (!savedState.length) return;
     setSelectedBooleans(savedState[savedState.length - count - 1].booleans);
     setSelectedNumbers(savedState[savedState.length - count - 1].numbers);
@@ -157,20 +150,24 @@ const App = () => {
   }
 
   //выбор данных в селектах
-  const setFilter = (target) => {
+  const setFilter = (target, name) => {
     setReseted(false);
     setCount(0);
-    if (typeof target[0].value === 'number') {
-      setSelectedNumbers(target);
-    } else if (
-      target[0].label == target[0].value
-      && typeof target[0].value === 'string'
-    ) {
-      setSelectedStrings(target);
-    } else if (typeof target[0].value === 'boolean') {
-      setSelectedBooleans(target);
-    } else {
-      setSelectedObjects(target);
+    switch (name) {
+      case 'numbers':
+        target ? setSelectedNumbers(target) : setSelectedNumbers([])
+        break;
+      case 'strings':
+        target ? setSelectedStrings(target) : setSelectedStrings([])
+        break;
+      case 'objects':
+        target ? setSelectedObjects(target) : setSelectedObjects([])
+        break;
+      case 'booleans':
+        target ? setSelectedBooleans(target) : setSelectedBooleans([])
+        break;
+      default:
+        break;
     }
   }
 
@@ -182,7 +179,7 @@ const App = () => {
           value={selectedNumbers}
           hasSelectAll={false}
           disableSearch={true}
-          onChange={(array) => {setFilter(array)}}
+          onChange={(array) => {setFilter(array, 'numbers')}}
           labelledBy="Select"
         />
         <MultiSelect
@@ -190,7 +187,7 @@ const App = () => {
           value={selectedStrings}
           hasSelectAll={false}
           disableSearch={true}
-          onChange={(array) => { setFilter(array) }}
+          onChange={(array) => { setFilter(array, 'strings') }}
           labelledBy="Select"
         />
         <MultiSelect
@@ -198,7 +195,7 @@ const App = () => {
           value={selectedObjects}
           hasSelectAll={false}
           disableSearch={true}
-          onChange={(array) => { setFilter(array) }}
+          onChange={(array) => { setFilter(array, 'objects') }}
           labelledBy="Select"
         />
         <MultiSelect
@@ -206,7 +203,7 @@ const App = () => {
           value={selectedBooleans}
           hasSelectAll={false}
           disableSearch={true}
-          onChange={(array) => { setFilter(array) }}
+          onChange={(array) => { setFilter(array, 'booleans') }}
           labelledBy="Select"
         />
       </div>
