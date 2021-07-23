@@ -1,0 +1,90 @@
+$grey: #999997;
+$enabled: #e4e49c;
+$disabled: #cfcfca;
+$hover: #eec882;
+$padding: 20px;
+
+body, * {
+  box-sizing: border-box;
+}
+
+@mixin flexRow {
+  display: flex;
+  flex-direction: row;
+}
+
+@mixin sectionHeader {
+  font-size: 16px;
+  font-weight: bold;
+  padding-bottom: 15px;
+}
+
+@mixin sectionResult {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+}
+
+.selectors,
+.section-result {
+  align-self: center;
+}
+
+.selectors {
+  width: 100%;
+  max-width: 1000px;
+  @include flexRow;
+  flex-wrap: wrap;
+  padding: $padding;
+  .multi-select {
+    width: 50%;
+    margin-bottom: $padding;
+  }
+}
+
+div.rmsc:nth-child(odd) {
+  padding-right: 10px;
+}
+
+
+.section-result {
+  width: 100%;
+  max-width: 1000px;
+  @include flexRow;
+  padding-top: $padding;
+}
+
+.results {
+  padding-left: $padding;
+  width: 500px;
+}
+
+.redo,
+.undo,
+.reset {
+  width: 100px;
+  height: 40px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  &:enabled {
+    background: $enabled;
+    cursor: pointer;
+  }
+  &:hover {
+    background: $hover;
+  }
+}
+
+.redo {
+  margin: 0px $padding;
+}
+
+.redo:disabled,
+.undo:disabled {
+  background: $disabled;
+}

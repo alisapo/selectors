@@ -1,0 +1,18 @@
+@import '../App/App.scss';
+
+.selector-list {
+  padding: 0px $padding;
+  width: 500px;
+}
+
+.section-header {
+  @include sectionHeader;
+}
+
+.selected-header {
+  font-weight: 600;
+}
+
+.no-selected {
+  padding-top: 5px;
+}

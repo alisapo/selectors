@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 
 import { sha256 } from 'js-sha256';
 
+import './countedHashStrings.scss';
+
 const CountedHashStrings = (props) => {
   const [stringToHash, setStringToHash] = useState(null);
   const [hashOfString, setHashOfString] = useState(null);
@@ -21,8 +23,16 @@ const CountedHashStrings = (props) => {
   }, [props.selectedStrings, props.selectedStrings.length]);
 
   return (
-    <div>
-      Хэш строки {stringToHash}: {stringToHash ? hashOfString : 'пока нет результата.'}
+    <div className="result-string">
+      <div className="section-header">
+        Хэш строки:
+      </div>
+      <div className="hash">
+        {stringToHash}
+      </div>
+      <div className="hash-result">
+        {stringToHash ? hashOfString : 'пока нет результата.'}
+      </div>
     </div>
   )
 }

@@ -1,0 +1,16 @@
+@import '../App/App.scss';
+
+.result-string {
+  padding: 0px 0px $padding 0px;
+  overflow-wrap: anywhere;
+}
+
+.hash {
+  max-width: 500px;
+  white-space: normal;
+}
+
+.hash-result {
+  @include sectionResult;
+  padding-top: $padding;
+}

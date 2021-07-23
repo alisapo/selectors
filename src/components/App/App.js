@@ -6,7 +6,7 @@ import SelectorsList from '../SelectorsList/SelectorsList.js';
 import CountedNumbersResult from '../countedNumbersResult/countedNumbersResult.js';
 import CountedHashStrings from '../countedHashStrings/countedHashStrings.js';
 
-import './App.css';
+import './App.scss';
 
 const App = () => {
   let
@@ -28,7 +28,7 @@ const App = () => {
     fetch('https://raw.githubusercontent.com/WilliamRu/TestAPI/master/db.json')
     .then(res => res.json())
     .then(res => checkArr(res.testArr))
-    .catch(err => { console.log(err); });
+    .catch(err => { console.log('Произошла ошибка.', err); });
   }, []);
 
   //распределение по типам данных
@@ -207,40 +207,42 @@ const App = () => {
           labelledBy="Select"
         />
       </div>
-      <div className='results'>
-        <CountedNumbersResult selectedNumbers={selectedNumbers} />
-        <CountedHashStrings selectedStrings={selectedStrings} />
+      <div className="section-result">
+        <SelectorsList
+          strings={selectedStrings}
+          numbers={selectedNumbers}
+          booleans={selectedBooleans}
+          objects={selectedObjects}
+        />
+        <div className='results'>
+          <CountedHashStrings selectedStrings={selectedStrings} />
+          <CountedNumbersResult selectedNumbers={selectedNumbers} />
+          <button
+            disabled={(savedState.length > +1
+              && (savedState.length - count - +1) >= +1) ?
+              false : true}
+            className='undo'
+            name="undo"
+            onClick={(e) => { undoRedo(e) }}
+          >
+            Отменить
+          </button>
+          <button
+            disabled={(count && savedState.length > +1) ? false : true}
+            className='redo'
+            name="redo"
+            onClick={(e) => { undoRedo(e) }}
+          >
+            Повторить
+          </button>
+          <button
+            className='reset'
+            onClick={(e) => { resetFilters(e) }}
+          >
+            Сбросить
+          </button>
+        </div>
       </div>
-      <SelectorsList
-        strings={selectedStrings}
-        numbers={selectedNumbers}
-        booleans={selectedBooleans}
-        objects={selectedObjects}
-      />
-      <button
-        disabled={(savedState.length > +1
-          && (savedState.length - count - +1) >= +1) ?
-          false : true}
-        className='undo'
-        name="undo"
-        onClick={(e) => { undoRedo(e) }}
-      >
-        Отменить
-      </button>
-      <button
-        disabled={(count && savedState.length > +1) ? false : true}
-        className='redo'
-        name="redo"
-        onClick={(e) => { undoRedo(e) }}
-      >
-        Повторить
-      </button>
-      <button
-        className='reset'
-        onClick={(e) => { resetFilters(e) }}
-      >
-        Сбросить
-      </button>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 
+import './countedNumbersResult.scss';
+
 const CountedNumbersResult = (props) => {
   const [proizv, setProizv] = useState(null);
 
@@ -18,8 +20,13 @@ const CountedNumbersResult = (props) => {
   }, [props.selectedNumbers]);
 
   return (
-    <div>
-          Произведение чисел: {proizv ? proizv : 'пока нет результата.'}
+    <div className="result-number">
+      <div className="section-header">
+        Произведение чисел:
+      </div>
+      <div className="result or not">
+        {proizv ? proizv : 'пока нет результата.'}
+      </div>
     </div>
   )
 }
