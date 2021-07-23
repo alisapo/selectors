@@ -1,3 +1,7 @@
+# Demo version:
+
+https://alisapo.github.io/selectors-demo/
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
