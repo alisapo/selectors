@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import MultiSelect from 'react-multi-select-component';
+import Modal from 'react-modal';
 
 import SelectorsList from '../SelectorsList/SelectorsList.js';
 import CountedNumbersResult from '../countedNumbersResult/countedNumbersResult.js';
@@ -8,8 +9,25 @@ import CountedHashStrings from '../countedHashStrings/countedHashStrings.js';
 
 import './App.scss';
 
+const customStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    transform: 'translate(-50%, -50%)',
+  },
+  p: {
+    paddingBottom: '10px'
+  }
+};
+
 const App = () => {
-  let
+  let [modalErr, setModal] = useState(false),
     [strings, setStrings] = useState([]),
     [numbers, setNumbers] = useState([]),
     [objects, setObjects] = useState([]),
@@ -26,15 +44,22 @@ const App = () => {
   //получение данных с сервера
   useEffect(() => {
     fetch('https://raw.githubusercontent.com/WilliamRu/TestAPI/master/db.json')
-    .then(res => res.json())
-    .then(res => checkArr(res.testArr))
-    .catch(err => { console.log('Произошла ошибка.', err); });
+      .then(res => res.json())
+      .then(res => checkArr(res.testArr))
+      .catch(err => {
+        setModal(true);
+        console.log('Произошла ошибка.', err);
+      });
   }, []);
+
+  const setModalErr = () => {
+    setModal(false);
+  }
 
   //распределение по типам данных
   const checkArr = (param) => {
     if (!Array.isArray(param)) return;
-    
+
     for (let k = 0; k < param.length; k++) {
       if (
         param[k] === null
@@ -66,7 +91,8 @@ const App = () => {
     if (name.length) {
       for (let t = 0; t < name.length; t++) {
         if (name[t].label === param) return;
-    }}
+      }
+    }
 
     //создаём временный объект
     const tempObj = {
@@ -105,7 +131,8 @@ const App = () => {
           numbers: selectedNumbers,
           objects: selectedObjects,
           booleans: selectedBooleans
-    }]);} else {
+        }]);
+    } else {
       setSavedState([
         ...savedState,
         {
@@ -113,7 +140,8 @@ const App = () => {
           numbers: selectedNumbers,
           objects: selectedObjects,
           booleans: selectedBooleans
-    }]);}
+        }]);
+    }
   }, [
     selectedStrings,
     selectedNumbers,
@@ -172,77 +200,92 @@ const App = () => {
   }
 
   return (
-    <div className='App'>
-      <div className='selectors'>
-        <MultiSelect
-          options={numbers}
-          value={selectedNumbers}
-          hasSelectAll={false}
-          disableSearch={true}
-          onChange={(array) => {setFilter(array, 'numbers')}}
-          labelledBy="Select"
-        />
-        <MultiSelect
-          options={strings}
-          value={selectedStrings}
-          hasSelectAll={false}
-          disableSearch={true}
-          onChange={(array) => { setFilter(array, 'strings') }}
-          labelledBy="Select"
-        />
-        <MultiSelect
-          options={objects}
-          value={selectedObjects}
-          hasSelectAll={false}
-          disableSearch={true}
-          onChange={(array) => { setFilter(array, 'objects') }}
-          labelledBy="Select"
-        />
-        <MultiSelect
-          options={booleans}
-          value={selectedBooleans}
-          hasSelectAll={false}
-          disableSearch={true}
-          onChange={(array) => { setFilter(array, 'booleans') }}
-          labelledBy="Select"
-        />
-      </div>
-      <div className="section-result">
-        <SelectorsList
-          strings={selectedStrings}
-          numbers={selectedNumbers}
-          booleans={selectedBooleans}
-          objects={selectedObjects}
-        />
-        <div className='results'>
-          <CountedHashStrings selectedStrings={selectedStrings} />
-          <CountedNumbersResult selectedNumbers={selectedNumbers} />
-          <button
-            disabled={(savedState.length > +1
-              && (savedState.length - count - +1) >= +1) ?
-              false : true}
-            className='undo'
-            name="undo"
-            onClick={(e) => { undoRedo(e) }}
-          >
-            Отменить
-          </button>
-          <button
-            disabled={(count && savedState.length > +1) ? false : true}
-            className='redo'
-            name="redo"
-            onClick={(e) => { undoRedo(e) }}
-          >
-            Повторить
-          </button>
-          <button
-            className='reset'
-            onClick={(e) => { resetFilters(e) }}
-          >
-            Сбросить
-          </button>
+    <div className='App-container'>
+      {modalErr ?
+        <Modal
+          isOpen={modalErr}
+          onRequestClose={setModalErr}
+          parentSelector={() => document.querySelector('#root')}
+          style={customStyles}
+          contentLabel="Example Modal"
+        >
+          <p>Произошла ошибка.</p>
+          <button onClick={setModalErr} className="reset">Закрыть</button>
+        </Modal>
+        :
+        <div className="App">
+          <div className='selectors'>
+            <MultiSelect
+              options={numbers}
+              value={selectedNumbers}
+              hasSelectAll={false}
+              disableSearch={true}
+              onChange={(array) => { setFilter(array, 'numbers') }}
+              labelledBy="Select"
+            />
+            <MultiSelect
+              options={strings}
+              value={selectedStrings}
+              hasSelectAll={false}
+              disableSearch={true}
+              onChange={(array) => { setFilter(array, 'strings') }}
+              labelledBy="Select"
+            />
+            <MultiSelect
+              options={objects}
+              value={selectedObjects}
+              hasSelectAll={false}
+              disableSearch={true}
+              onChange={(array) => { setFilter(array, 'objects') }}
+              labelledBy="Select"
+            />
+            <MultiSelect
+              options={booleans}
+              value={selectedBooleans}
+              hasSelectAll={false}
+              disableSearch={true}
+              onChange={(array) => { setFilter(array, 'booleans') }}
+              labelledBy="Select"
+            />
+          </div>
+          <div className="section-result">
+            <SelectorsList
+              strings={selectedStrings}
+              numbers={selectedNumbers}
+              booleans={selectedBooleans}
+              objects={selectedObjects}
+            />
+            <div className='results'>
+              <CountedHashStrings selectedStrings={selectedStrings} />
+              <CountedNumbersResult selectedNumbers={selectedNumbers} />
+              <button
+                disabled={(savedState.length > +1
+                  && (savedState.length - count - +1) >= +1) ?
+                  false : true}
+                className='undo'
+                name="undo"
+                onClick={(e) => { undoRedo(e) }}
+              >
+                Отменить
+              </button>
+              <button
+                disabled={(count && savedState.length > +1) ? false : true}
+                className='redo'
+                name="redo"
+                onClick={(e) => { undoRedo(e) }}
+              >
+                Повторить
+              </button>
+              <button
+                className='reset'
+                onClick={(e) => { resetFilters(e) }}
+              >
+                Сбросить
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      }
     </div>
   );
 }
