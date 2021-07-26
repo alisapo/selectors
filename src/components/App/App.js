@@ -48,7 +48,7 @@ const App = () => {
       .then(res => checkArr(res.testArr))
       .catch(err => {
         setModal(true);
-        console.log('Произошла ошибка.', err);
+        console.error('Произошла ошибка.', err);
       });
   }, []);
 
@@ -66,18 +66,28 @@ const App = () => {
         || param[k].length === 0
       ) console.log('Пустой объект');
 
-      if (typeof param[k] === 'boolean') sortElemFunc(param[k], booleans);
+      switch (typeof param[k]) {
+        case 'boolean':
+          sortElemFunc(param[k], booleans);
+          break;
 
-      if (typeof param[k] === 'number') {
-        // eslint-disable-next-line no-undef
-        const a = BigInt(param[k]).toString();
-        sortElemFunc(a, numbers);
-      };
+        case 'number':
+          // eslint-disable-next-line no-undef
+          const a = BigInt(param[k]).toString();
+          sortElemFunc(a, numbers);
+          break;
 
-      if (typeof param[k] === 'string') sortElemFunc(param[k], strings);
+        case 'string':
+          sortElemFunc(param[k], strings);
+          break;
+      
+        default:
+          break;
+      }
 
       if (
         param[k] !== null
+        // && param[k].toString() === '[object Object]'
         && param[k].hasOwnProperty('value')
       ) sortElemFunc(param[k], objects);
 
