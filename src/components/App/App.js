@@ -60,7 +60,10 @@ const App = () => {
   const checkArr = (param) => {
     if (!Array.isArray(param)) return;
 
-    for (let k = 0; k < param.length; k++) {
+    const arrLength = param.length;
+    let k = 0;
+
+    for (k = 0; k < arrLength; k++) {
       if (
         param[k] === null
         || param[k].length === 0
@@ -104,18 +107,11 @@ const App = () => {
       }
     }
 
-    //создаём временный объект
-    const tempObj = {
+    //создаём и записываем объект в массив
+    name[!name.length ? 0 : name.length] = {
       label: param.key ? param.key.toString() : param.toString(),
       value: param.value ? param.value : param
     };
-
-    //записываем объект в массив
-    if (!name.length) {
-      name[0] = { ...tempObj };
-    } else {
-      name[name.length] = { ...tempObj };
-    }
   }
 
   //следим за обновлениями данных в селектах

@@ -24,7 +24,7 @@ const SelectorsList = (props) => {
                       : item.value}
                   </div>
                 )})}
-            </div> : <div className='no-selected'>Пока нет выбранных элементов.</div>
+            </div> : <div className='no-selected'>Пока нет выбранных элементов в селекторе {obj.name}.</div>
         )})}
     </div>
   )
