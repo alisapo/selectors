@@ -90,8 +90,8 @@ const App = () => {
 
       if (
         param[k] !== null
-        // && param[k].toString() === '[object Object]'
-        && param[k].hasOwnProperty('value')
+        && Object.keys(param[k]).length > 0
+        && param[k].toString() === '[object Object]'
       ) sortElemFunc(param[k], objects);
 
       if (Array.isArray(param[k])) checkArr(param[k]);
